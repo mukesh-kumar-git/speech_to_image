@@ -27,27 +27,22 @@ HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 def generate_image(prompt):
     response = requests.post(
-        "https://api-inference.huggingface.co/v1/images/generations",
+        "https://api.stability.ai/v2beta/stable-image/generate/sd3",
         headers={
-            "Authorization": f"Bearer {HF_TOKEN}",
-            "Content-Type": "application/json"
+            "Authorization": f"Bearer {st.secrets['STABILITY_API_KEY']}",
+            "Accept": "image/png"
         },
-        json={
-            "model": "stabilityai/stable-diffusion-xl-base-1.0",
-            "prompt": prompt,
-            "size": "1024x1024"
+        files={
+            "prompt": (None, prompt),
+            "output_format": (None, "png")
         },
         timeout=120
     )
 
     if response.status_code != 200:
-        raise RuntimeError(f"{response.status_code}: {response.text}")
+        raise RuntimeError(response.text)
 
-    data = response.json()
-    image_base64 = data["data"][0]["b64_json"]
-
-    image_bytes = base64.b64decode(image_base64)
-    return Image.open(io.BytesIO(image_bytes))
+    return Image.open(io.BytesIO(response.content))
 
 
 def speech_to_text(audio_bytes):
