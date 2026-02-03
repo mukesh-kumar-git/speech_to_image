@@ -26,21 +26,26 @@ HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 
 def generate_image(prompt):
+    payload = {
+        "provider": "hf-inference",
+        "task": "text-to-image",
+        "model": "stabilityai/stable-diffusion-xl-base-1.0",
+        "inputs": prompt
+    }
+
     response = requests.post(
-        API_URL,
+        "https://router.huggingface.co/inference",
         headers={
             "Authorization": f"Bearer {HF_TOKEN}",
             "Accept": "image/png",
             "Content-Type": "application/json"
         },
-        json={"inputs": prompt},
+        json=payload,
         timeout=120
     )
 
     if response.status_code != 200:
-        raise RuntimeError(
-            f"Status {response.status_code}: {response.text}"
-        )
+        raise RuntimeError(f"{response.status_code}: {response.text}")
 
     return Image.open(io.BytesIO(response.content))
 
