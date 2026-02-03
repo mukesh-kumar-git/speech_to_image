@@ -23,7 +23,7 @@ def generate_image(prompt):
         "https://api.stability.ai/v2beta/stable-image/generate/sd3",
         headers={
             "Authorization": f"Bearer {API_KEY}",
-            "Accept": "image/png"
+            "Accept": "image/*"
         },
         files={
             "prompt": (None, prompt),
