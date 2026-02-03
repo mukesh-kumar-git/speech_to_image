@@ -9,13 +9,19 @@ import tempfile
 st.set_page_config(page_title="Speech / Text to Image", layout="centered")
 st.title("🎤 Speech / Text to Image Generator")
 
-# Hugging Face token from Streamlit Secrets
-HF_TOKEN = st.secrets["HF_TOKEN"]
+
+HF_TOKEN = st.secrets.get("HF_TOKEN", None)
+
+if HF_TOKEN is None:
+    st.error(
+        "Hugging Face token not found.\n\n"
+        "Go to **Manage App → Settings → Secrets** and add:\n\n"
+        "HF_TOKEN = \"hf_your_token_here\""
+    )
+    st.stop()
 
 API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1"
-HEADERS = {
-    "Authorization": f"Bearer {HF_TOKEN}"
-}
+HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 
 def generate_image(prompt):
@@ -25,18 +31,22 @@ def generate_image(prompt):
         json={"inputs": prompt},
         timeout=120
     )
-    response.raise_for_status()
+
+    if response.status_code != 200:
+        raise RuntimeError(response.text)
+
     return Image.open(io.BytesIO(response.content))
+
 
 def speech_to_text(audio_bytes):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
         f.write(audio_bytes)
-        audio_path = f.name
+        path = f.name
 
-    recognizer = sr.Recognizer()
-    with sr.AudioFile(audio_path) as source:
-        audio_data = recognizer.record(source)
-        return recognizer.recognize_google(audio_data)
+    r = sr.Recognizer()
+    with sr.AudioFile(path) as source:
+        audio_data = r.record(source)
+        return r.recognize_google(audio_data)
 
 
 prompt = st.text_input("✍️ Enter text prompt")
@@ -48,7 +58,7 @@ if audio:
     try:
         prompt = speech_to_text(audio.getbuffer())
         st.success(f"Recognized: {prompt}")
-    except Exception as e:
+    except Exception:
         st.error("Speech recognition failed")
 
 if st.button("🎨 Generate Image"):
@@ -62,3 +72,4 @@ if st.button("🎨 Generate Image"):
                 st.success("Done")
             except Exception as e:
                 st.error("Image generation failed")
+                st.code(str(e))
