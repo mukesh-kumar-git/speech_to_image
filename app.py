@@ -10,17 +10,18 @@ st.set_page_config(page_title="Speech / Text to Image", layout="centered")
 st.title("🎤 Speech / Text to Image Generator")
 
 
-HF_TOKEN = st.secrets.get("HF_TOKEN", None)
+HF_TOKEN = st.secrets.get("HF_TOKEN")
 
-if HF_TOKEN is None:
+if not HF_TOKEN:
     st.error(
-        "Hugging Face token not found.\n\n"
-        "Go to **Manage App → Settings → Secrets** and add:\n\n"
-        "HF_TOKEN = \"hf_your_token_here\""
+        "HF_TOKEN missing.\n\n"
+        "Go to Manage App → Settings → Secrets and add:\n\n"
+        'HF_TOKEN = "hf_xxxxxxxxxxxxxxxxx"'
     )
     st.stop()
 
-API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1"
+
+API_URL = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-2-1"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 
