@@ -4,7 +4,7 @@ from PIL import Image
 import io
 import speech_recognition as sr
 import tempfile
-
+import base64
 
 st.set_page_config(page_title="Speech / Text to Image", layout="centered")
 st.title("🎤 Speech / Text to Image Generator")
