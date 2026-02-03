@@ -28,13 +28,19 @@ HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 def generate_image(prompt):
     response = requests.post(
         API_URL,
-        headers=HEADERS,
+        headers={
+            "Authorization": f"Bearer {HF_TOKEN}",
+            "Accept": "image/png",
+            "Content-Type": "application/json"
+        },
         json={"inputs": prompt},
         timeout=120
     )
 
     if response.status_code != 200:
-        raise RuntimeError(response.text)
+        raise RuntimeError(
+            f"Status {response.status_code}: {response.text}"
+        )
 
     return Image.open(io.BytesIO(response.content))
 
