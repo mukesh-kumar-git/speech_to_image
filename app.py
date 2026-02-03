@@ -26,28 +26,28 @@ HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 
 def generate_image(prompt):
-    payload = {
-        "provider": "hf-inference",
-        "task": "text-to-image",
-        "model": "stabilityai/stable-diffusion-xl-base-1.0",
-        "inputs": prompt
-    }
-
     response = requests.post(
-        "https://router.huggingface.co/inference",
+        "https://api-inference.huggingface.co/v1/images/generations",
         headers={
             "Authorization": f"Bearer {HF_TOKEN}",
-            "Accept": "image/png",
             "Content-Type": "application/json"
         },
-        json=payload,
+        json={
+            "model": "stabilityai/stable-diffusion-xl-base-1.0",
+            "prompt": prompt,
+            "size": "1024x1024"
+        },
         timeout=120
     )
 
     if response.status_code != 200:
         raise RuntimeError(f"{response.status_code}: {response.text}")
 
-    return Image.open(io.BytesIO(response.content))
+    data = response.json()
+    image_base64 = data["data"][0]["b64_json"]
+
+    image_bytes = base64.b64decode(image_base64)
+    return Image.open(io.BytesIO(image_bytes))
 
 
 def speech_to_text(audio_bytes):
