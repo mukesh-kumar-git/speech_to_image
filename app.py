@@ -22,6 +22,7 @@ API_URL = "https://router.huggingface.co/hf-inference/models/runwayml/stable-dif
 
 HEADERS = {
     "Authorization": f"Bearer {API_KEY}",
+    "Accept": "image/png",
     "Content-Type": "application/json"
 }
 
@@ -34,7 +35,7 @@ def generate_image(prompt):
     )
 
     if response.status_code != 200:
-        raise RuntimeError(response.text)
+        raise RuntimeError(f"{response.status_code}: {response.text}")
 
     return Image.open(io.BytesIO(response.content))
 
