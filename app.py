@@ -6,7 +6,7 @@ import speech_recognition as sr
 import tempfile
 
 st.set_page_config(page_title="Speech / Text to Image", layout="centered")
-st.title("🎤 Speech / Text to Image Generator (FREE)")
+st.title("🎤 Speech / Text to Image Generator")
 
 API_KEY = st.secrets.get("HF_API_KEY")
 
